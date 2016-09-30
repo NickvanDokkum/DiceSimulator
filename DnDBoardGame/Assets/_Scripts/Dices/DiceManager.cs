@@ -12,8 +12,19 @@ public class DiceManager : MonoBehaviour {
     [SerializeField] private Text roles;
     [SerializeField] private Text lastRollTotals;
     private List<int> diceNumbers = new List<int>();
-    
+
+    [SerializeField] private List<Transform> walls = new List<Transform>();
+    [SerializeField] private List<Vector3> wallsPos = new List<Vector3>();
+
+    private int diceKind;
+
     public void SpawnDice(int diceAmount, int dice) {
+        diceKind = dice;
+        CancelInvoke("SetTexts");
+        walls[0].position = wallsPos[0];
+        walls[1].position = wallsPos[2];
+        walls[2].position = wallsPos[4];
+        walls[3].position = wallsPos[6];
         diceNumbers.Clear();
         rollingDice = diceAmount;
         totalAmount = 0;
@@ -33,13 +44,17 @@ public class DiceManager : MonoBehaviour {
             Debug.LogError("Dice not found");
         }
     }
-    void AddNumber(int diceAmount) {
-
-    }
     public void Ready() {
         rollingDice--;
         if(rollingDice == 0) {
-            SetTexts();
+            walls[0].position = wallsPos[1];
+            walls[1].position = wallsPos[3];
+            walls[2].position = wallsPos[5];
+            walls[3].position = wallsPos[7];
+            for(int i = 0; i < currentDices.Count; i++) {
+                currentDices[i].GetComponent<Rigidbody>().AddForce(new Vector3(0, -1, 0));
+            }
+            Invoke("SetTexts", 1);
         }
     }
     void SetTexts() {
@@ -50,12 +65,32 @@ public class DiceManager : MonoBehaviour {
         }
         diceNumbers.Sort();
         diceNumbers.Reverse();
-        string lastrolls = diceNumbers[0].ToString();
+        string lastrolls;
+        if (isCrit(diceNumbers[0])) {
+            lastrolls = "<color=#00ff00ff>" + diceNumbers[0].ToString() + "</color>";
+        }
+        else {
+            lastrolls = diceNumbers[0].ToString();
+        }
         for (int i = 1; i < diceNumbers.Count; i++) {
-            lastrolls += ", " + diceNumbers[i].ToString();
+            if (diceNumbers[i] == 1) {
+                lastrolls += ", <color=#ff0000ff>" + diceNumbers[i].ToString() + "</color>";
+            }
+            else if (isCrit(diceNumbers[i])) {
+                lastrolls += ", <color=#00ff00ff>" + diceNumbers[i].ToString() + "</color>";
+            }
+            else {
+                lastrolls += ", " + diceNumbers[i].ToString();
+            }
         }
         lastRollTotals.text = lastrolls;
         Debug.Log("total: " + totalAmount);
         roles.text = totalAmount + " \n " + roles.text;
+    }
+    private bool isCrit(int diceRoll) {
+        if ((diceKind == 0 && diceRoll == 4) || (diceKind == 1 && diceRoll == 6) || (diceKind == 2 && diceRoll == 8) || (diceKind ==3 && diceRoll == 10) || (diceKind == 4 && diceRoll == 12) || (diceKind == 5 && diceRoll == 20)) {
+            return (true);
+        }
+        return (false);
     }
 }

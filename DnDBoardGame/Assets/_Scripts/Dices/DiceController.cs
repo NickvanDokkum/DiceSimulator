@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine.UI;
 
 public class DiceController : MonoBehaviour {
@@ -7,15 +8,19 @@ public class DiceController : MonoBehaviour {
     private int diceNumber = 0;
     private int diceAmount = 1;
     [SerializeField] private DiceManager manager;
-    [SerializeField] private Text diceInfo;
+    [SerializeField] private Text diceAmountText;
     [SerializeField] private int maxAmount = 20;
+    [SerializeField] private List<Image> diceButtons = new List<Image>();
 
     void Start() {
-        SetDiceText();
+        SetDiceButtons();
+    }
+    public void SpawnDice() {
+        manager.SpawnDice(diceAmount, diceNumber);
     }
     void Update() {
-        if(Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space)) {
-            manager.SpawnDice(diceAmount, diceNumber);
+        if(Input.GetKeyDown(KeyCode.Space)) {
+            SpawnDice();
         }
         if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D)) {
             if (diceNumber < 5) {
@@ -24,7 +29,7 @@ public class DiceController : MonoBehaviour {
             else {
                 diceNumber = 0;
             }
-            SetDiceText();
+            SetDiceButtons();
         }
         else if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A)) {
             if (diceNumber > 0) {
@@ -33,7 +38,7 @@ public class DiceController : MonoBehaviour {
             else {
                 diceNumber = 5;
             }
-            SetDiceText();
+            SetDiceButtons();
         }
         if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W)) {
             if (diceAmount < maxAmount) {
@@ -42,7 +47,7 @@ public class DiceController : MonoBehaviour {
             else {
                 diceAmount = 1;
             }
-            SetDiceText();
+            SetDiceButtons();
         }
         else if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S)) {
             if (diceAmount > 1) {
@@ -51,30 +56,37 @@ public class DiceController : MonoBehaviour {
             else {
                 diceAmount = maxAmount;
             }
-            SetDiceText();
+            SetDiceButtons();
         }
     }
-    void SetDiceText() {
-        if(diceNumber == 0) {
-            diceInfo.text = "D4 * " + diceAmount;
+    public void SetDice(int dice) {
+        diceNumber = dice;
+        SetDiceButtons();
+    }
+    public void AddDice(bool positive) {
+        if(positive) {
+            diceAmount++;
+            if(diceAmount > maxAmount) {
+                diceAmount = 1;
+            }
         }
-        else if (diceNumber == 1) {
-            diceInfo.text = "D6 * " + diceAmount;
+        else {
+            diceAmount--;
+            if (diceAmount < 1) {
+                diceAmount = maxAmount;
+            }
         }
-        else if (diceNumber == 2) {
-            diceInfo.text = "D8 * " + diceAmount;
-        }
-        else if (diceNumber == 3) {
-            diceInfo.text = "D10 * " + diceAmount;
-        }
-        else if (diceNumber == 4) {
-            diceInfo.text = "D12 * " + diceAmount;
-        }
-        else if (diceNumber == 5) {
-            diceInfo.text = "D20 * " + diceAmount;
-        }
-        else if (diceNumber == 6) {
-            diceInfo.text = "D100 * " + diceAmount;
+        SetDiceButtons();
+    }
+    void SetDiceButtons() {
+        diceAmountText.text = diceAmount.ToString();
+        for (int i = 0; i < diceButtons.Count; i++) {
+            if(i == diceNumber) {
+                diceButtons[diceNumber].color = new Color(1, 1, 1);
+            }
+            else {
+                diceButtons[i].color = new Color(0.8f, 0.8f, 0.8f);
+            }
         }
     }
 }
