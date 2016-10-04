@@ -23,6 +23,7 @@ public class DiceManager : MonoBehaviour {
         walls[2].position = wallsPos[4];
         walls[3].position = wallsPos[6];
         diceNumbers.Clear();
+        rollingDice = 0;
         totalAmount = 0;
         while (currentDices.Count > 0) {
             Destroy(currentDices[0]);
@@ -67,7 +68,7 @@ public class DiceManager : MonoBehaviour {
             lastrolls = "<color=#00ff00ff>" + diceNumbers[0].ToString() + "</color>";
         }
         else if (diceNumbers[0] == 1) {
-            lastrolls = ", <color=#ff0000ff>" + diceNumbers[0].ToString() + "</color>";
+            lastrolls = "<color=#ff0000ff>" + diceNumbers[0].ToString() + "</color>";
         }
         else {
             lastrolls = diceNumbers[0].ToString();
