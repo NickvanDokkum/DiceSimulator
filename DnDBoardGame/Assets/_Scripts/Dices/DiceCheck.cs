@@ -20,8 +20,6 @@ public class DiceCheck : MonoBehaviour {
     private Rigidbody body;
     private Vector3 lastPos;
     [SerializeField] private List<Transform> sides = new List<Transform>();
-
-    [SerializeField] private int sidenumber;
 	
     void Start() {
         body = GetComponent<Rigidbody>();
