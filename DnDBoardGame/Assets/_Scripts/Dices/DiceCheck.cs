@@ -13,6 +13,10 @@ public class DiceCheck : MonoBehaviour {
     }
 
     private bool stopped = false;
+    public int DiceNumber {
+        get { return diceNumber; }
+    }
+    [SerializeField] private int diceNumber;
     private Rigidbody body;
     private Vector3 lastPos;
     [SerializeField] private List<Transform> sides = new List<Transform>();

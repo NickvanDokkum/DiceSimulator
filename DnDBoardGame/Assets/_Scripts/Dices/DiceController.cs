@@ -5,88 +5,67 @@ using UnityEngine.UI;
 
 public class DiceController : MonoBehaviour {
     
-    private int diceNumber = 0;
-    private int diceAmount = 1;
     [SerializeField] private DiceManager manager;
-    [SerializeField] private Text diceAmountText;
-    [SerializeField] private int maxAmount = 20;
-    [SerializeField] private List<Image> diceButtons = new List<Image>();
+    [SerializeField] private List<Text> diceAmountText = new List<Text>();
+    [SerializeField] private Text maxAmountText;
+    [SerializeField] private int maxAmount = 21;
+    private List<int> dices = new List<int>(1);
+    private int diceAmount;
+
 
     void Start() {
+        for (int i = 0; i < 6; i++) {
+            dices.Add(0);
+        }
         SetDiceButtons();
     }
+    private string diceText(int number) {
+        if (number == 0) {
+            return ("d4");
+        }
+        else if (number == 1) {
+            return ("d6");
+        }
+        else if (number == 2) {
+            return ("d8");
+        }
+        else if (number == 3) {
+            return ("d10");
+        }
+        else if (number == 4) {
+            return ("d12");
+        }
+        else if (number == 5) {
+            return ("d20");
+        }
+        return ("Error");
+    }
     public void SpawnDice() {
-        manager.SpawnDice(diceAmount, diceNumber);
+        manager.SpawnDice(dices);
     }
     void Update() {
         if(Input.GetKeyDown(KeyCode.Space)) {
             SpawnDice();
         }
-        if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D)) {
-            if (diceNumber < 5) {
-                diceNumber++;
-            }
-            else {
-                diceNumber = 0;
-            }
-            SetDiceButtons();
-        }
-        else if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A)) {
-            if (diceNumber > 0) {
-                diceNumber--;
-            }
-            else {
-                diceNumber = 5;
-            }
-            SetDiceButtons();
-        }
-        if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W)) {
-            if (diceAmount < maxAmount) {
-                diceAmount++;
-            }
-            else {
-                diceAmount = 1;
-            }
-            SetDiceButtons();
-        }
-        else if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S)) {
-            if (diceAmount > 1) {
-                diceAmount--;
-            }
-            else {
-                diceAmount = maxAmount;
-            }
-            SetDiceButtons();
-        }
     }
-    public void SetDice(int dice) {
-        diceNumber = dice;
-        SetDiceButtons();
-    }
-    public void AddDice(bool positive) {
-        if(positive) {
+    public void AddDice(int dice) {
+        if (diceAmount < maxAmount) {
             diceAmount++;
-            if(diceAmount > maxAmount) {
-                diceAmount = 1;
-            }
+            dices[dice]++;
+            SetDiceButtons();
         }
-        else {
+    }
+    public void RemoveDice(int dice) {
+        if (diceAmount > 0) {
             diceAmount--;
-            if (diceAmount < 1) {
-                diceAmount = maxAmount;
-            }
+            dices[dice]--;
+            SetDiceButtons();
         }
-        SetDiceButtons();
     }
     void SetDiceButtons() {
-        diceAmountText.text = diceAmount.ToString();
-        for (int i = 0; i < diceButtons.Count; i++) {
-            if(i == diceNumber) {
-                diceButtons[diceNumber].color = new Color(1, 1, 1);
-            }
-            else {
-                diceButtons[i].color = new Color(0.8f, 0.8f, 0.8f);
-            }
+        maxAmountText.text = diceAmount.ToString() + "/" + maxAmount.ToString();
+        for (int i = 0; i < diceAmountText.Count; i++) {
+            diceAmountText[i].text = dices[i].ToString() + "\n" + diceText(i).ToString();
         }
     }
 }

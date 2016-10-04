@@ -16,36 +16,35 @@ public class DiceManager : MonoBehaviour {
     [SerializeField] private List<Transform> walls = new List<Transform>();
     [SerializeField] private List<Vector3> wallsPos = new List<Vector3>();
 
-    private int diceKind;
-
-    public void SpawnDice(int diceAmount, int dice) {
-        diceKind = dice;
+    public void SpawnDice(List<int> diceAmount) {
         CancelInvoke("SetTexts");
         walls[0].position = wallsPos[0];
         walls[1].position = wallsPos[2];
         walls[2].position = wallsPos[4];
         walls[3].position = wallsPos[6];
         diceNumbers.Clear();
-        rollingDice = diceAmount;
         totalAmount = 0;
         while (currentDices.Count > 0) {
             Destroy(currentDices[0]);
             currentDices.RemoveAt(0);
         }
-        if (dice < dices.Count) {
-            for (int i = 0; i < diceAmount; i++) {
-                currentDices.Add(Instantiate(dices[dice], transform.position, new Quaternion(Random.value * 2 - 1, Random.value * 2 - 1, Random.value - 0.5f, Random.value * 2 - 1)) as GameObject);
-                currentDices[i].GetComponent<Rigidbody>().AddForce(new Vector2(Random.value * 4 + 2, Random.value * 8 - 4));
-                currentDices[i].GetComponent<Rigidbody>().AddTorque(new Vector2(Random.value * 8 + 2, Random.value * 16 - 8));
-                currentDices[i].GetComponent<DiceCheck>().Manager = this;
+        if (diceAmount.Count <= dices.Count) {
+            for (int d = 0; d < 6; d++) {
+                GameObject dice = dices[d];
+                for (int i = 0; i < diceAmount[d]; i++) {
+                    GameObject currentDice = Instantiate(dice, transform.position, new Quaternion(Random.value * 2 - 1, Random.value * 2 - 1, Random.value - 0.5f, Random.value * 2 - 1)) as GameObject;
+                    currentDices.Add(currentDice);
+                    currentDice.GetComponent<Rigidbody>().AddForce(new Vector2(Random.value * 4 + 2, Random.value * 8 - 4));
+                    currentDice.GetComponent<Rigidbody>().AddTorque(new Vector2(Random.value * 8 + 2, Random.value * 16 - 8));
+                    currentDice.GetComponent<DiceCheck>().Manager = this;
+                    rollingDice++;
+                }
             }
-        }
-        else {
-            Debug.LogError("Dice not found");
         }
     }
     public void Ready() {
         rollingDice--;
+        Debug.Log(rollingDice);
         if(rollingDice == 0) {
             walls[0].position = wallsPos[1];
             walls[1].position = wallsPos[3];
@@ -63,11 +62,12 @@ public class DiceManager : MonoBehaviour {
             diceNumbers.Add(temp);
             totalAmount += temp;
         }
-        diceNumbers.Sort();
-        diceNumbers.Reverse();
         string lastrolls;
-        if (isCrit(diceNumbers[0])) {
+        if (isCrit(diceNumbers[0], currentDices[0].GetComponent<DiceCheck>().DiceNumber)) {
             lastrolls = "<color=#00ff00ff>" + diceNumbers[0].ToString() + "</color>";
+        }
+        else if (diceNumbers[0] == 1) {
+            lastrolls = ", <color=#ff0000ff>" + diceNumbers[0].ToString() + "</color>";
         }
         else {
             lastrolls = diceNumbers[0].ToString();
@@ -76,7 +76,7 @@ public class DiceManager : MonoBehaviour {
             if (diceNumbers[i] == 1) {
                 lastrolls += ", <color=#ff0000ff>" + diceNumbers[i].ToString() + "</color>";
             }
-            else if (isCrit(diceNumbers[i])) {
+            else if (isCrit(diceNumbers[i], currentDices[i].GetComponent<DiceCheck>().DiceNumber)) {
                 lastrolls += ", <color=#00ff00ff>" + diceNumbers[i].ToString() + "</color>";
             }
             else {
@@ -84,10 +84,10 @@ public class DiceManager : MonoBehaviour {
             }
         }
         lastRollTotals.text = lastrolls;
-        Debug.Log("total: " + totalAmount);
         roles.text = totalAmount + " \n " + roles.text;
     }
-    private bool isCrit(int diceRoll) {
+    private bool isCrit(int diceRoll, int diceKind) {
+        Debug.Log(diceRoll + " " + diceKind);
         if ((diceKind == 0 && diceRoll == 4) || (diceKind == 1 && diceRoll == 6) || (diceKind == 2 && diceRoll == 8) || (diceKind ==3 && diceRoll == 10) || (diceKind == 4 && diceRoll == 12) || (diceKind == 5 && diceRoll == 20)) {
             return (true);
         }
